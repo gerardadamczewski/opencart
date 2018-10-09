@@ -1,0 +1,174 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fas fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fas fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible"><i class="fas fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header"><i class="fas fa-pencil-alt"></i> {{ text_edit }}</div>
+      <div class="card-body">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a href="#tab-general" data-toggle="tab" class="nav-link active">{{ tab_opencal }}</a></li>
+          <li class="nav-item"><a href="#tab-order-status" data-toggle="tab" class="nav-link">{{ tab_opencal_settings }}</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active text-center" id="tab-general">
+                {% if module_opencal_status and module_opencal_code %}
+                    <script>
+
+  $(document).ready(function() {
+
+    $('#calendar').fullCalendar({
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month,agendaWeek,agendaDay'
+      },
+      defaultDate: '2018-03-12',
+      navLinks: true, // can click day/week names to navigate views
+      selectable: true,
+      selectHelper: true,
+      select: function(start, end) {
+        var title = prompt('Event Title:');
+        var eventData;
+        if (title) {
+          eventData = {
+            title: title,
+            start: start,
+            end: end
+          };
+          $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+        }
+        $('#calendar').fullCalendar('unselect');
+      },
+      editable: true,
+      eventLimit: true, // allow "more" link when too many events
+      events: [
+        {
+          title: 'All Day Event',
+          start: '2018-03-01'
+        },
+        {
+          title: 'Long Event',
+          start: '2018-03-07',
+          end: '2018-03-10'
+        },
+        {
+          id: 999,
+          title: 'Repeating Event',
+          start: '2018-03-09T16:00:00'
+        },
+        {
+          id: 999,
+          title: 'Repeating Event',
+          start: '2018-03-16T16:00:00'
+        },
+        {
+          title: 'Conference',
+          start: '2018-03-11',
+          end: '2018-03-13'
+        },
+        {
+          title: 'Meeting',
+          start: '2018-03-12T10:30:00',
+          end: '2018-03-12T12:30:00'
+        },
+        {
+          title: 'Lunch',
+          start: '2018-03-12T12:00:00'
+        },
+        {
+          title: 'Meeting',
+          start: '2018-03-12T14:30:00'
+        },
+        {
+          title: 'Happy Hour',
+          start: '2018-03-12T17:30:00'
+        },
+        {
+          title: 'Dinner',
+          start: '2018-03-12T20:00:00'
+        },
+        {
+          title: 'Birthday Party',
+          start: '2018-03-13T07:00:00'
+        },
+        {
+          title: 'Click for Google',
+          url: 'http://google.com/',
+          start: '2018-03-28'
+        }
+      ]
+    });
+
+  });
+  </script>
+  <style>
+
+  body {
+    margin: 40px 10px;
+    padding: 0;
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+    font-size: 14px;
+  }
+
+  #calendar {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+</style>
+  <div id="calendar"></div>
+                {% else %}
+                    <label>{{ text_setup }}</label>
+                {% endif %}
+            </div>
+            <div class="tab-pane" id="tab-order-status">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module">
+                  <div class="form-group row required">
+                    <label class="col-sm-2 col-form-label" for="input-code">{{ entry_code }}</label>
+                    <div class="col-sm-10">
+                      <textarea name="module_opencal_code" rows="5" id="input-code" class="form-control">{{ module_opencal_code }}</textarea>
+                      <small class="form-text text-muted">{{ help_code|raw }}</small>
+                      {% if error_code %}
+                        <div class="invalid-tooltip">{{ error_code }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-sm-2 col-form-label" for="input-status">{{ entry_status }}</label>
+                    <div class="col-sm-10">
+                      <select name="module_opencal_status" id="input-status" class="form-control">
+                        {% if module_opencal_status %}
+                          <option value="1" selected="selected">{{ text_enabled }}</option>
+                          <option value="0">{{ text_disabled }}</option>
+                        {% else %}
+                          <option value="1">{{ text_enabled }}</option>
+                          <option value="0" selected="selected">{{ text_disabled }}</option>
+                        {% endif %}
+                      </select>
+                    </div>
+                  </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}
