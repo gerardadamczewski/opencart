@@ -29,6 +29,14 @@
         <div class="tab-content">
             <div class="tab-pane active text-center" id="tab-general">
                 {% if module_opencal_status and module_opencal_code %}
+                    
+  
+ 
+  
+  
+  
+  
+  
                     <script>
 
   $(document).ready(function() {
@@ -44,7 +52,7 @@
       selectable: true,
       selectHelper: true,
       select: function(start, end) {
-        var title = prompt('Event Title:');
+        /*var title = prompt('Event Title:');
         var eventData;
         if (title) {
           eventData = {
@@ -53,15 +61,39 @@
             end: end
           };
           $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-        }
+        }*/
+        
+        
+            $('#modalTitle').html('New Event');
+            $('#eventTitle').val('');
+            $('#eventStart').val(start.toString());
+            $('#eventEnd').val(end.toString());
+            $('#eventColour').val('');
+            $('#eventBody').val('');
+            $('#fullCalModal').modal();
+        
         $('#calendar').fullCalendar('unselect');
       },
+        eventClick:  function(event, jsEvent, view) {
+            $('#modalTitle').html(event.title);
+            start = event.start.toString();
+            end = event.end ? event.end.toString() : start;
+            $('#eventTitle').val(event.title);
+            $('#eventStart').val(start);
+            $('#eventEnd').val(end);
+            $('#eventColour').val(event.color ? event.color : '');
+            $('#eventBody').val(event.description ? event.description : '');
+            $('#fullCalModal').modal();
+        },
       editable: true,
       eventLimit: true, // allow "more" link when too many events
+      eventTextColor: '#fff',
       events: [
         {
           title: 'All Day Event',
-          start: '2018-03-01'
+          start: '2018-03-01',
+          description: 'blar blar blar',
+          color: '#378006'
         },
         {
           title: 'Long Event',
@@ -117,7 +149,16 @@
     });
 
   });
+  
+  // Refresh calendar every 1 minute
+  function fcRefresh() {
+      
+  }
+  
+  setInterval(fcRefresh, 60*1000);
   </script>
+  
+  
   <style>
 
   body {
@@ -133,6 +174,40 @@
   }
 
 </style>
+
+
+
+<div id="fullCalModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modalTitle" class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span> <span class="sr-only">close</span></button>
+            </div>
+            <div class="m-3 text-left">Title: <input type="text" name="eventtitle" id="eventTitle" class="w-100"/></div>
+            <div class="m-3 text-left">Start: <input type="text" name="eventstart" id="eventStart" class="w-100" readonly="1"/></div>
+            <div class="m-3 text-left">End: <input type="text" name="eventend" id="eventEnd" class="w-100" readonly="1"/></div>
+            <div class="m-3 text-left">Colour: <input type="text" name="eventcolour" id="eventColour" class="w-100" readonly="1"/></div>
+            <div class="m-3 text-left">Description: <textarea name="eventbody" id="eventBody" class="w-100" rows="10"></textarea></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+  
+<script>
+    $('#eventStart').datetimepicker({
+        dateFormat: 'yy/mm/dd', 
+        timeFormat: 'HH:mm',
+    });
+    $('#eventEnd').datetimepicker({
+        dateFormat: 'yy/mm/dd', 
+        timeFormat: 'HH:mm',
+    });
+    </script>
+  
   <div id="calendar"></div>
                 {% else %}
                     <label>{{ text_setup }}</label>

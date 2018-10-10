@@ -4,8 +4,13 @@ class ControllerExtensionModuleOpenCal extends Controller {
 
 	public function index() {
                 $this->document->addStyle('view/javascript/fullcalendar/fullcalendar.min.css');
-                //$this->document->addStyle('view/javascript/fullcalendar/fullcalendar.print.min.css', 'print');
+                $this->document->addStyle('view/javascript/fullcalendar/fullcalendar.print.min.css', 'stylesheet', 'print');
                 $this->document->addScript('view/javascript/fullcalendar/fullcalendar.min.js');
+                
+                $this->document->addStyle('view/javascript/jquery-timepicker-addon/jquery-ui.min.css');
+                $this->document->addScript('view/javascript/jquery-timepicker-addon/jquery-ui.min.js');
+                $this->document->addStyle('view/javascript/jquery-timepicker-addon/jquery-ui-timepicker-addon.min.css');
+                $this->document->addScript('view/javascript/jquery-timepicker-addon/jquery-ui-timepicker-addon.min.js');
                 
 		$this->load->language('extension/module/opencal');
 
