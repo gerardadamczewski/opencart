@@ -59,15 +59,17 @@
             if(start.indexOf(':') > -1) {
                 start = start.slice(0, -3); //remove seconds from the string
             }
-            end = end.toISOString().replace(/T/g," "); //remove "T" from the string
+            end = end.toISOString().replace(/T/g," ");
             if(end.indexOf(':') > -1) {
-                end = end.slice(0, -3); //remove seconds from the string
+                end = end.slice(0, -3);
             }
             
             $('#eventStart').val(start);
             $('#eventEnd').val(end);
             $('#eventId').val('');
-            $('#eventColour').val('');
+            $('#eventColour').val('#5484ed');
+            $('.simplecolorpicker span').attr("class","");
+            $('.simplecolorpicker span[data-color="#5484ed"]').attr("class","selected");
             $('#eventBody').val('');
             $("#fullCalRemove").hide();
             $('#fullCalModal').modal();
@@ -75,7 +77,6 @@
             $('#calendar').fullCalendar('unselect');
       },
         eventClick:  function(event, jsEvent, view) {
-            console.log(event.color);
             $('#modalTitle').html(event.title);
             
             end = event.end ? event.end : event.start;
@@ -83,19 +84,27 @@
             if(start.indexOf(':') > -1) {
                 start = start.slice(0, -3); //remove seconds from the string
             }
-            end = end.toISOString().replace(/T/g," "); //remove "T" from the string
+            end = end.toISOString().replace(/T/g," ");
             if(end.indexOf(':') > -1) {
-                end = end.slice(0, -3); //remove seconds from the string
+                end = end.slice(0, -3);
             }
-            console.log(event.id);
+            
             $('#eventId').val(event.id);
             $('#eventTitle').val(event.title);
             $('#eventStart').val(start);
             $('#eventEnd').val(end);
-            $('#eventColour').val(event.color ? event.color : '');
+            $('#eventColour option[value=\'' + (event.color ? event.color : '#5484ed') + '\']').prop('selected', true);
+            $('.simplecolorpicker span').attr("class","");
+            $('.simplecolorpicker span[data-color="' + (event.color ? event.color : '#5484ed') + '"]').attr("class","selected");
             $('#eventBody').val(event.description ? event.description : '');
             $("#fullCalRemove").show();
             $('#fullCalModal').modal();
+        },
+        //TODO: google api integration
+        eventDrop: function(event, delta, revertFunc) {
+          if (!confirm("Are you sure about this change?")) {
+            revertFunc();
+          }
         },
       editable: true,
       eventLimit: true, // allow "more" link when too many events
@@ -116,12 +125,12 @@
           end: '2018-03-10'
         },
         {
-          id: 999,
+          id: 11,
           title: 'Repeating Event',
           start: '2018-03-09T16:00:00'
         },
         {
-          id: 999,
+          id: 12,
           title: 'Repeating Event',
           start: '2018-03-16T16:00:00'
         },
@@ -171,20 +180,28 @@
       ]
     });
     
+    //TODO: google api integration
     $( "#fullCalRemove" ).on( "click", function() {
         $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
         $('#fullCalModal').modal('hide');
     });
     
+    
+    //TODO: id for new events (id will be from google api/ajax call)
+    //google api integration
     $( "#fullCalSave" ).on( "click", function() {
         var eventData;
         if ($('#eventTitle').val() && $('#eventStart').val() && $('#eventEnd').val()) {
             eventData = {
-                title:  $('#eventTitle').val(),
-                start:  $('#eventStart').val(),
-                end:    $('#eventEnd').val()
+                id:             $('#eventId').val() ? $('#eventId').val() : Math.random(),
+                title:          $('#eventTitle').val(),
+                start:          $('#eventStart').val(),
+                end:            $('#eventEnd').val(),
+                description:    $('#eventBody').val(),
+                color:          $('#eventColour').val()
             };
-            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+            $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
+            $('#calendar').fullCalendar('renderEvent', eventData, false); // stick? = true
         }        
         
         $('#fullCalModal').modal('hide');
