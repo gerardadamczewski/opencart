@@ -11,6 +11,8 @@ class ControllerExtensionModuleOpenCal extends Controller {
                 $this->document->addScript('view/javascript/jquery-timepicker-addon/jquery-ui.min.js');
                 $this->document->addStyle('view/javascript/jquery-timepicker-addon/jquery-ui-timepicker-addon.min.css');
                 $this->document->addScript('view/javascript/jquery-timepicker-addon/jquery-ui-timepicker-addon.min.js');
+                $this->document->addStyle('view/javascript/simplecolorpicker/jquery.simplecolorpicker.css');
+                $this->document->addScript('view/javascript/simplecolorpicker/jquery.simplecolorpicker.js');
                 
 		$this->load->language('extension/module/opencal');
 
