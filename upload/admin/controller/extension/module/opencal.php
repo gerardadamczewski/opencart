@@ -122,39 +122,17 @@ class ControllerExtensionModuleOpenCal extends Controller {
     }
 
     protected function service() {
-        /* if (!$this->config->get('module_opencal_code')  || !$this->config->get('module_opencal_app') ||  !$this->user->hasPermission('modify', 'extension/module/opencal')) {
-          die();
-          }
-
-          $scriptUri = ($this->request->server['HTTPS'] ? 'https://' : 'http://') . $this->request->server['HTTP_HOST'] . $this->request->server['REQUEST_URI'];
-          //dd($scriptUri);
-
-          $client = new Google_Client();
-          $client->setAccessType('online');
-          $client->setApplicationName(trim($this->config->get('module_opencal_app')));
-          $client->setClientId(trim($this->config->get('module_opencal_client_id')));
-          $client->setClientSecret(trim($this->config->get('module_opencal_client_secret')));
-          $client->setRedirectUri($scriptUri);
-          $client->setScopes(Google_Service_Calendar::CALENDAR);
-          //unneeded? $client->setDeveloperKey(trim($this->config->get('module_opencal_code')));
-          if(isset($this->request->get['code'])) {
-          $client->authenticate();
-          $this->session->set('google_calendar_token', $client->getAccessToken());
-          }
-
-          if(isset($this->session->get['google_calendar_token'])) {
-          $client->setAccessToken($this->session->get('google_calendar_token'));
-          }
-
-          if(!$client->getAccessToken()) {
-          header('Location: ' . $client->createAuthUrl());
-          die();
-          } */
+        /*
+         * TODO: 
+         * - replace the credentials and token json files with something more configurable
+         * - update, add and remove events on google
+         * - colors don't match google, e.g. "4" on 19.12.2018
+         */
         $client = new Google_Client();
         $client->setApplicationName('Google Calendar API PHP Quickstart');
         $client->setScopes(Google_Service_Calendar::CALENDAR);
         $client->setAuthConfig('/home/gerard/projects/opencart/upload/system/storage/credentials.json');
-        $client->setAccessType('online');
+        $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
 
         // Load previously authorized token from a file, if it exists.
@@ -198,8 +176,7 @@ class ControllerExtensionModuleOpenCal extends Controller {
     }
 
     public function deleteEvent() {
-        $ret = $this->service()->events->delete('primary', $this->request->get['id']);
-        $ret['result'] = empty($ret) ? true : false;
+        $ret = $this->service()->events->delete('primary', $this->request->get['event_id']);
         die(json_encode($ret));
     }
 
@@ -212,30 +189,50 @@ class ControllerExtensionModuleOpenCal extends Controller {
     }
 
     public function insertEvent() {
+        $start = new DateTime($this->request->get['start']);
+        $end = new DateTime($this->request->get['end']);
+        
         $event = new Google_Service_Calendar_Event(array(
             'summary' => $this->request->get['title'],
             'description' => $this->request->get['description'],
+            'colorId' => $this->request->get['color_id'],
             'start' => array(
-                'dateTime' => str_replace(' ', 'T', $this->request->get['start'])
+                'dateTime' => $start->format("Y-m-d\TH:i:sP"),
+                'timeZone' => date_default_timezone_get()
             ),
             'end' => array(
-                'dateTime' => str_replace(' ', 'T', $this->request->get['end'])
+                'dateTime' => $end->format("Y-m-d\TH:i:sP"),
+                'timeZone' => date_default_timezone_get()
             ),
         ));
 
-        $calendarId = 'primary';
-        $event = $this->service()->events->insert($calendarId, $event);
+        try {
+        $event = $this->service()->events->insert('primary', $event);
         $ret['result'] = $event->getId() ? $event->getId() : false;
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
         die(json_encode($ret));
     }
 
     public function listEvents() {
+        $colorsMap = array(
+            "9" =>  "#5484ed",
+            "1" => "#a4bdfc",
+            "7" => "#46d6db",
+            "2" => "#7ae7bf",
+           "10"=> "#51b749",
+            "5" => "#fbd75b",
+            "6" => "#ffb878",
+            "4" => "#ff887c",
+           "11"=> "#dc2127",
+            "3" => "#dbadff",
+            "8" => "#e1e1e1"
+        );
         $events = $this->service()->events->listEvents('primary');
-
+        
         while (true) {
-            /*foreach ($events->getItems() as $event) {
-                echo $event->getSummary();
-            }*/
             $pageToken = $events->getNextPageToken();
             if ($pageToken) {
                 $optParams = array('pageToken' => $pageToken);
@@ -244,6 +241,11 @@ class ControllerExtensionModuleOpenCal extends Controller {
                 break;
             }
         }
+        
+        foreach($events->items as &$item) {
+            $item->colorId = isset($colorsMap[$item->colorId]) ? $colorsMap[$item->colorId] : 9;
+        }
+        
         $ret['result'] = empty($events) ? false : $events;
         die(json_encode($ret));
     }

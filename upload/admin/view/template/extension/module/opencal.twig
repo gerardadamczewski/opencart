@@ -112,9 +112,18 @@
       events: [ ]
     });
     
-    //TODO: google api integration
     $( "#fullCalRemove" ).on( "click", function() {
-        $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
+      $.ajax({
+                url: "http://c1e1abd5.ngrok.io/admin/index.php?route=extension/module/opencal/deleteevent&user_token=37320cd7f30422430d7c5f3403aeb5cb&event_id=" + $('#eventId').val(),
+                type: 'GET',
+                dataType: 'json', // added data type
+                success: function(res) {
+                        $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
+                },
+                error: function() {
+                    alert('There was an error while removing event');
+                }
+        });
         $('#fullCalModal').modal('hide');
     });
     
@@ -123,28 +132,54 @@
     //google api integration
     $( "#fullCalSave" ).on( "click", function() {
         var eventData;
-        if ($('#eventTitle').val() && $('#eventStart').val() && $('#eventEnd').val()) {
-            eventData = {
-                id:             $('#eventId').val() ? $('#eventId').val() : Math.random(),
-                title:          $('#eventTitle').val(),
-                start:          $('#eventStart').val(),
-                end:            $('#eventEnd').val(),
-                description:    $('#eventBody').val(),
-                color:          $('#eventColour').val()
-            };
-            $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
-            $('#calendar').fullCalendar('renderEvent', eventData, true); 
-        }        
+        var ajaxUrl;
+        
+        if($('#eventId').val() ) {
+            ajaxUrl = "http://c1e1abd5.ngrok.io/admin/index.php?route=extension/module/opencal/updateevent&user_token=37320cd7f30422430d7c5f3403aeb5cb&title=" + $('#eventTitle').val()
+                    + "&description=" + $('#eventBody').val()
+                    + "&color_id=" + $('#eventColour').find('option:selected').attr('id').slice(2)
+                    + "&start=" + $('#eventStart').val()
+                    + "&end=" + $('#eventEnd').val()
+                    + "&event_id=" + $('#eventId').val();
+        }
+        else {
+            ajaxUrl = "http://c1e1abd5.ngrok.io/admin/index.php?route=extension/module/opencal/insertevent&user_token=37320cd7f30422430d7c5f3403aeb5cb&title=" + $('#eventTitle').val()
+                    + "&description=" + $('#eventBody').val()
+                    + "&color_id=" + $('#eventColour').find('option:selected').attr('id').slice(2)
+                    + "&start=" + $('#eventStart').val()
+                    + "&end=" + $('#eventEnd').val();
+        }
+        
+        $.ajax({
+                  url: ajaxUrl,
+                  type: 'GET',
+                  dataType: 'json', // added data type
+                  success: function(res) {                      
+                      if ($('#eventTitle').val() && $('#eventStart').val() && $('#eventEnd').val()) {
+                        eventData = {
+                            id:             $('#eventId').val() ? $('#eventId').val() : res.result,
+                            title:          $('#eventTitle').val(),
+                            start:          $('#eventStart').val(),
+                            end:            $('#eventEnd').val(),
+                            description:    $('#eventBody').val(),
+                            color:          $('#eventColour').val()
+                        }
+                        $('#calendar').fullCalendar('removeEvents', [$('#eventId').val()]);
+                        $('#calendar').fullCalendar('renderEvent', eventData, true); 
+                  }},
+                  error: function() {
+                      alert('There was an error while saving event');
+                  }
+          });        
         
         $('#fullCalModal').modal('hide');
     });
 
   });
   
-  //TODO: Refresh calendar every 1 minute
   function fcRefresh() {
       $.ajax({
-                url: "http://ef07efd8.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=992de7848acc48783fd201efd11cec06",
+                url: "http://c1e1abd5.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=37320cd7f30422430d7c5f3403aeb5cb",
                 type: 'GET',
                 dataType: 'json', // added data type
                 success: function(res) {
