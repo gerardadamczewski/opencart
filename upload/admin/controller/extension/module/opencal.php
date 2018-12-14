@@ -245,7 +245,6 @@ class ControllerExtensionModuleOpenCal extends Controller {
             }
         }
         $ret['result'] = empty($events) ? false : $events;
-        dd($ret);
         die(json_encode($ret));
     }
 

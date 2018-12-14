@@ -210,10 +210,19 @@
   
   //TODO: Refresh calendar every 1 minute
   function fcRefresh() {
-      
+      $.ajax({
+                url: "http://3446e8ec.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=553b59454d28bf3dde5c2bf92c28837b",
+                type: 'GET',
+                dataType: 'json', // added data type
+                success: function(res) {
+                        console.log(res);
+                        alert(res);
+                }
+        });
   }
   
-  setInterval(fcRefresh, 60*1000);
+  fcRefresh();
+  //setInterval(fcRefresh, 60*1000);
   </script>
   
   
