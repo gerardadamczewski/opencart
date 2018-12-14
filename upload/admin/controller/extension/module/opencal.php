@@ -181,8 +181,18 @@ class ControllerExtensionModuleOpenCal extends Controller {
     }
 
     public function updateEvent() {
-        $event = $this->service()->events->get('primary', $this->request->get['id']);
+        $eventStart = new DateTime($this->request->get['start']);
+        $eventEnd = new DateTime($this->request->get['end']);
+        $start = new Google_Service_Calendar_EventDateTime();
+        $end = new Google_Service_Calendar_EventDateTime();
+        $start->setDateTime($eventStart->format("Y-m-d\TH:i:sP"));
+        $end ->setDateTime($eventEnd->format("Y-m-d\TH:i:sP"));
+        $event = $this->service()->events->get('primary', $this->request->get['event_id']);
         $event->setSummary($this->request->get['title']);
+        $event->setDescription($this->request->get['description']);
+        $event->setColorId($this->request->get['color_id']);
+        $event->setStart($start);
+        $event->setEnd($end);
         $updatedEvent = $this->service()->events->update('primary', $event->getId(), $event);
         $ret['result'] = $updatedEvent->getId() ? true : false;
         die(json_encode($ret));

@@ -128,9 +128,7 @@
     });
     
     
-    //TODO: id for new events (id will be from google api/ajax call)
-    //google api integration
-    $( "#fullCalSave" ).on( "click", function() {
+  $( "#fullCalSave" ).on( "click", function() {
         var eventData;
         var ajaxUrl;
         
@@ -177,6 +175,7 @@
 
   });
   
+  //TODO: urls
   function fcRefresh() {
       $.ajax({
                 url: "http://c1e1abd5.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=37320cd7f30422430d7c5f3403aeb5cb",
