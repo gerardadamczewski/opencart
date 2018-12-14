@@ -211,12 +211,22 @@
   //TODO: Refresh calendar every 1 minute
   function fcRefresh() {
       $.ajax({
-                url: "http://3446e8ec.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=553b59454d28bf3dde5c2bf92c28837b",
+                url: "http://ef07efd8.ngrok.io/admin/index.php?route=extension/module/opencal/listevents&user_token=992de7848acc48783fd201efd11cec06",
                 type: 'GET',
                 dataType: 'json', // added data type
                 success: function(res) {
-                        console.log(res);
-                        alert(res);
+                        res.result.items.forEach(function(item) {
+                            eventData = {
+                                id:                    item.id,
+                                title:                item.summary,
+                                start:              item.start.dateTime ? item.start.dateTime : item.start.date,
+                                end:                item.end.dateTime ? item.end.dateTime : item.end.date,
+                                description:   item.description,
+                                color:             item.colorId
+                            };
+                            $('#calendar').fullCalendar('removeEvents', [item.id]);
+                            $('#calendar').fullCalendar('renderEvent', eventData, false); // stick? = true
+                        });
                 }
         });
   }
